@@ -1,0 +1,68 @@
+schema_version: "1.0"
+id: session-vault
+name: Session Vault Memory Manager
+version: "0.1.0"
+description: Persistent memory and session recovery skill for OpenClaw agents.
+
+transport:
+  type: http
+  base_url_env: VAULT_API_BASE
+  default_base_url: http://localhost:4000/api/v1/vault
+
+authentication:
+  type: api_key_header
+  header: x-api-key
+  key_env: VAULT_API_KEY
+  optional_when_auth_disabled: true
+
+capabilities:
+  - name: append_event
+    method: POST
+    path: /events
+    min_role: operator
+  - name: update_summary
+    method: POST
+    path: /summary
+    min_role: operator
+  - name: update_memory
+    method: POST
+    path: /memory
+    min_role: operator
+  - name: build_snapshot
+    method: POST
+    path: /snapshot/build
+    min_role: operator
+  - name: list_snapshots
+    method: GET
+    path: /snapshots
+    min_role: reader
+  - name: restore_snapshot
+    method: POST
+    path: /snapshot/restore
+    min_role: admin
+  - name: search_memory
+    method: GET
+    path: /search
+    min_role: reader
+  - name: list_tasks
+    method: GET
+    path: /tasks
+    min_role: reader
+  - name: upsert_tasks
+    method: POST
+    path: /tasks
+    min_role: operator
+  - name: resolve_contradiction
+    method: POST
+    path: /contradictions/resolve
+    min_role: operator
+  - name: compact_storage
+    method: POST
+    path: /compact
+    min_role: admin
+
+health:
+  health_url_env: VAULT_HEALTH_URL
+  default_health_url: http://localhost:4000/health
+  readiness_url_env: VAULT_READY_URL
+  default_readiness_url: http://localhost:4000/ready

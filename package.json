@@ -1,0 +1,23 @@
+{
+  "name": "memory-manager-wan",
+  "private": true,
+  "version": "0.1.0",
+  "author": "Mohamed Amin ELMOUHAJIR",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run -ws build",
+    "dev": "npm run -ws dev",
+    "lint": "npm run -ws lint",
+    "test": "npm run -ws test",
+    "check": "npm run lint && npm run test && npm run build",
+    "release:gate": "npm run check && npm run skill:check",
+    "skill:check": "node scripts/skill-acceptance.mjs",
+    "smoke": "node scripts/smoke-test.mjs",
+    "backup:vault": "node scripts/backup-vault.mjs",
+    "restore:vault": "node scripts/restore-vault.mjs"
+  }
+}

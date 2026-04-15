@@ -1,0 +1,1 @@
+{"event_id":"evt-1776274957590","session_id":"smoke-1776274957590","timestamp":"2026-04-15T17:42:37.590Z","type":"fact","title":"Smoke test fact","content":"smoke=ok","tags":["smoke"],"sources":["smoke-script"],"confidence":0.9,"freshness":"high","status":"active"}
