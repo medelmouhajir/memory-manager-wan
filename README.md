@@ -2,6 +2,28 @@
 
 Persistent memory and operations dashboard for agent sessions: file-backed vault storage, optional SQLite indexing, a Next.js UI, and an HTTP API used by tools such as the OpenClaw session-vault skill.
 
+## Install (OpenClaw)
+
+Register the skill with the OpenClaw CLI (clones this repo into your skills area and installs workspace dependencies):
+
+```bash
+openclaw skills add https://github.com/medelmouhajir/memory-manager-wan.git
+```
+
+That installs **agent instructions and project files**; it does **not** start the Session Vault API. Configure `VAULT_API_BASE` (and `VAULT_API_KEY` when the server has `AUTH_ENABLED=true`); see [docs/openclaw-skill-integration.md](docs/openclaw-skill-integration.md).
+
+To import only the HTTP manifest by URL (for example “Add skill from URL” in a UI):
+
+`https://raw.githubusercontent.com/medelmouhajir/memory-manager-wan/main/skills/openclaw/session-vault.skill.yaml`
+
+**Bring up API + UI in one line** (Unix, from an empty directory; requires Docker Compose):
+
+```bash
+git clone --depth 1 https://github.com/medelmouhajir/memory-manager-wan.git && cd memory-manager-wan && cp .env.example .env && docker compose up --build -d
+```
+
+Then open [http://localhost:3000](http://localhost:3000) and set `VAULT_API_BASE` to `http://localhost:4000/api/v1/vault` (or your deployed host) unless you already changed it in `.env`.
+
 ## Features
 
 - Durable session activity: logs, summaries, structured memory (facts, preferences, decisions, tasks), contradictions, and snapshots

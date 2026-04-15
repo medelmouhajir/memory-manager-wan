@@ -1,5 +1,25 @@
 # OpenClaw Skill Integration Guide
 
+## Install (OpenClaw)
+
+Register the skill with the OpenClaw CLI:
+
+```bash
+openclaw skills add https://github.com/medelmouhajir/memory-manager-wan.git
+```
+
+This clones the repository and installs Node workspace dependencies at the repo root; it does **not** start the Session Vault server. Set `VAULT_API_BASE` and, when the backend has `AUTH_ENABLED=true`, `VAULT_API_KEY`. Operator-facing context lives in the root [SKILL.md](../SKILL.md).
+
+Import only the HTTP manifest by URL:
+
+`https://raw.githubusercontent.com/medelmouhajir/memory-manager-wan/main/skills/openclaw/session-vault.skill.yaml`
+
+**Bring up API + UI in one line** (Unix; requires Docker Compose):
+
+```bash
+git clone --depth 1 https://github.com/medelmouhajir/memory-manager-wan.git && cd memory-manager-wan && cp .env.example .env && docker compose up --build -d
+```
+
 ## Skill Artifact
 - Skill file: `skills/openclaw/session-vault.skill.yaml`
 - Skill id: `session-vault`
