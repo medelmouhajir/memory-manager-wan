@@ -1,0 +1,138 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/medelmouhajir/memory-manager-wan/schemas/session-vault.skill.schema.json",
+  "title": "Session Vault OpenClaw HTTP skill manifest",
+  "description": "Internal schema for skills/openclaw/session-vault.skill.yaml (schema_version 1.0).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "name",
+    "version",
+    "description",
+    "transport",
+    "authentication",
+    "capabilities",
+    "health"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "id": {
+      "type": "string",
+      "const": "session-vault"
+    },
+    "name": {
+      "type": "string",
+      "const": "Session Vault Memory Manager"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "transport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "base_url_env", "default_base_url"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "http"
+        },
+        "base_url_env": {
+          "type": "string",
+          "const": "VAULT_API_BASE"
+        },
+        "default_base_url": {
+          "type": "string",
+          "pattern": "^https?://\\S+$"
+        }
+      }
+    },
+    "authentication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "header", "key_env", "optional_when_auth_disabled"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "api_key_header"
+        },
+        "header": {
+          "type": "string",
+          "const": "x-api-key"
+        },
+        "key_env": {
+          "type": "string",
+          "const": "VAULT_API_KEY"
+        },
+        "optional_when_auth_disabled": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 11,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "method", "path", "min_role"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "method": {
+            "type": "string",
+            "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^/"
+          },
+          "min_role": {
+            "type": "string",
+            "enum": ["reader", "operator", "admin"]
+          }
+        }
+      }
+    },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "health_url_env",
+        "default_health_url",
+        "readiness_url_env",
+        "default_readiness_url"
+      ],
+      "properties": {
+        "health_url_env": {
+          "type": "string",
+          "const": "VAULT_HEALTH_URL"
+        },
+        "default_health_url": {
+          "type": "string",
+          "pattern": "^https?://\\S+$"
+        },
+        "readiness_url_env": {
+          "type": "string",
+          "const": "VAULT_READY_URL"
+        },
+        "default_readiness_url": {
+          "type": "string",
+          "pattern": "^https?://\\S+$"
+        }
+      }
+    }
+  }
+}

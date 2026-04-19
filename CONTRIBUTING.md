@@ -29,6 +29,17 @@ Useful additional commands:
 - Describe what changed and why in the PR description.
 - If you change behavior visible to operators or integrators, update the relevant doc under [docs/](docs/) or the root [README.md](README.md).
 
+## OpenClaw skill artifacts (version sync)
+
+When you change operator-facing skill content or the HTTP skill contract, bump **`version`** in both places together so they stay aligned:
+
+- Root [SKILL.md](SKILL.md) frontmatter
+- [skills/openclaw/session-vault.skill.yaml](skills/openclaw/session-vault.skill.yaml)
+
+Also update [docs/openclaw-skill-integration.md](docs/openclaw-skill-integration.md), [schemas/session-vault.skill.schema.json](schemas/session-vault.skill.schema.json), and [scripts/skill-acceptance.mjs](scripts/skill-acceptance.mjs) if routes, env vars, or manifest shape change. Run `npm run skill:check` before merging.
+
+If you publish or sync this repo to **ClawHub**, the root [`.clawhubignore`](.clawhubignore) reduces bundle noise (`node_modules`, build dirs, local `vault/`, etc.). ClawHub still enforces text-file allowlists and size limits server-side.
+
 ## Security
 
 See [SECURITY.md](SECURITY.md) for reporting vulnerabilities.

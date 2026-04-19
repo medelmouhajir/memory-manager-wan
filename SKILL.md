@@ -8,9 +8,11 @@ metadata:
       env:
         - VAULT_API_BASE
         - VAULT_API_KEY
+        - VAULT_HEALTH_URL
+        - VAULT_READY_URL
       bins:
         - curl
-    primaryEnv: VAULT_API_BASE
+    primaryEnv: VAULT_API_KEY
     homepage: https://github.com/medelmouhajir/memory-manager-wan
 ---
 
@@ -18,12 +20,14 @@ metadata:
 
 This skill targets a **running Session Vault server**. Installing this folder gives you the project source, the OpenClaw HTTP manifest, and documentation; it does **not** start the API by itself.
 
+ClawHub-style `primaryEnv` names the main **credential** variable; for Session Vault that is **`VAULT_API_KEY`** when the API uses auth. **`VAULT_API_BASE`** is always required so the agent knows where to send HTTP requests.
+
 ## What to configure
 
 - **`VAULT_API_BASE`** — Base URL for the vault API (for example `http://localhost:4000/api/v1/vault`). Must match where the backend is reachable from the agent.
 - **`VAULT_API_KEY`** — Sent as the `x-api-key` header. **Required only when the server has `AUTH_ENABLED=true`.** If auth is off, the header can be omitted (see [docs/openclaw-skill-integration.md](docs/openclaw-skill-integration.md)).
 
-Optional overrides: `VAULT_HEALTH_URL`, `VAULT_READY_URL` (defaults in the manifest).
+Optional overrides: `VAULT_HEALTH_URL`, `VAULT_READY_URL` (defaults in the HTTP manifest when unset).
 
 ## HTTP manifest
 

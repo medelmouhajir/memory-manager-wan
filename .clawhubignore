@@ -1,0 +1,26 @@
+# Exclude from ClawHub publish/sync (see clawhub docs/skill-format.md).
+.git/
+.github/
+node_modules/
+**/node_modules/
+
+# Build outputs
+backend/dist/
+frontend/.next/
+frontend/out/
+packages/*/dist/
+
+# Local env and logs
+.env
+.env.*
+*.log
+npm-debug.log*
+
+# Test / coverage artifacts
+coverage/
+**/coverage/
+.nyc_output/
+backend/node_modules/.vite/
+
+# User vault data (never ship)
+vault/

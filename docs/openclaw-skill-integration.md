@@ -1,5 +1,10 @@
 # OpenClaw Skill Integration Guide
 
+## Artifacts and version sync
+
+- **ClawHub-style instructions:** root [`SKILL.md`](../SKILL.md) (YAML frontmatter + Markdown). Keep `version` here in lockstep with the HTTP manifest below whenever you change either.
+- **HTTP manifest (machine-readable):** [`skills/openclaw/session-vault.skill.yaml`](../skills/openclaw/session-vault.skill.yaml) — transport, auth, per-route roles, health URLs. Validated by `npm run skill:check` against [`schemas/session-vault.skill.schema.json`](../schemas/session-vault.skill.schema.json).
+
 ## Install (OpenClaw)
 
 Register the skill with the OpenClaw CLI:
@@ -25,6 +30,18 @@ git clone --depth 1 https://github.com/medelmouhajir/memory-manager-wan.git && c
 - Skill id: `session-vault`
 - Transport: HTTP (`VAULT_API_BASE`, default `http://localhost:4000/api/v1/vault`)
 - Auth header: `x-api-key` (`VAULT_API_KEY`)
+
+### HTTP manifest shape (`schema_version` 1.0)
+
+| Section | Purpose |
+| -------- | -------- |
+| `schema_version`, `id`, `name`, `version`, `description` | Identity and compatibility |
+| `transport` | `type: http`, base URL from `base_url_env` / `default_base_url` |
+| `authentication` | API key header, env key name, optional when auth disabled |
+| `capabilities` | Named operations: HTTP method, path (relative to base), `min_role` |
+| `health` | Optional health and readiness URL overrides |
+
+Authoritative validation: [schemas/session-vault.skill.schema.json](../schemas/session-vault.skill.schema.json) (used by `npm run skill:check`).
 
 ## Required Environment Variables
 - `VAULT_API_BASE` - Base URL used by the skill.
@@ -88,10 +105,12 @@ From repository root:
 1. `npm ci`
 2. `npm run release:gate`
 3. `npm run smoke` (backend must be running)
-4. `npm run skill:check`
+4. `npm run skill:check` — validates YAML against [schemas/session-vault.skill.schema.json](../schemas/session-vault.skill.schema.json)
 
 Optional runtime probe from skill checker:
 - `set SKILL_PROBE_API=true && npm run skill:check`
+
+**OpenClaw CLI:** This repo’s contract is enforced by `npm run skill:check`. If you use the official CLI in an OpenClaw workspace, `npx openclaw --version` confirms the install; skill readiness in that workspace is `openclaw skills check` (see [OpenClaw CLI skills docs](https://docs.openclaw.ai/cli/skills)).
 
 ## OpenClaw Import Notes
 - Import the skill file from `skills/openclaw/session-vault.skill.yaml`.

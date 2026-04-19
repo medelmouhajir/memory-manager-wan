@@ -1,47 +1,64 @@
-import { promises as fs } from "node:fs";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import Ajv from "ajv";
+import { parse as parseYaml } from "yaml";
 
-const skillFile = process.env.OPENCLAW_SKILL_FILE ?? "skills/openclaw/session-vault.skill.yaml";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.join(__dirname, "..");
+
+const skillFile = process.env.OPENCLAW_SKILL_FILE ?? path.join(repoRoot, "skills/openclaw/session-vault.skill.yaml");
+const schemaFile = process.env.OPENCLAW_SKILL_SCHEMA ?? path.join(repoRoot, "schemas/session-vault.skill.schema.json");
+
 const shouldProbeApi = (process.env.SKILL_PROBE_API ?? "false").toLowerCase() === "true";
 const apiBase = process.env.VAULT_API_BASE ?? "http://localhost:4000/api/v1/vault";
 const healthUrl = process.env.VAULT_HEALTH_URL ?? "http://localhost:4000/health";
 const readyUrl = process.env.VAULT_READY_URL ?? "http://localhost:4000/ready";
 const apiKey = process.env.VAULT_API_KEY ?? "";
 
-const requiredTokens = [
-  "schema_version:",
-  "id: session-vault",
-  "name: Session Vault Memory Manager",
-  "base_url_env: VAULT_API_BASE",
-  "header: x-api-key",
-  "key_env: VAULT_API_KEY"
+/** Every path that must appear at least once under `capabilities`. */
+const requiredCapabilityPaths = [
+  "/events",
+  "/summary",
+  "/memory",
+  "/snapshot/build",
+  "/snapshots",
+  "/snapshot/restore",
+  "/search",
+  "/tasks",
+  "/contradictions/resolve",
+  "/compact"
 ];
 
-const requiredEndpoints = [
-  "path: /events",
-  "path: /summary",
-  "path: /memory",
-  "path: /snapshot/build",
-  "path: /snapshots",
-  "path: /snapshot/restore",
-  "path: /search",
-  "path: /tasks",
-  "path: /contradictions/resolve",
-  "path: /compact"
-];
+async function loadValidatedManifest() {
+  const [yamlText, schemaJson] = await Promise.all([readFile(skillFile, "utf8"), readFile(schemaFile, "utf8")]);
+  let data;
+  try {
+    data = parseYaml(yamlText);
+  } catch (err) {
+    throw new Error(`Invalid YAML in ${skillFile}: ${err instanceof Error ? err.message : String(err)}`);
+  }
+  if (data === null || typeof data !== "object") {
+    throw new Error(`Expected YAML document to be an object in ${skillFile}`);
+  }
 
-async function assertManifest() {
-  const text = await fs.readFile(skillFile, "utf8");
-  for (const token of requiredTokens) {
-    if (!text.includes(token)) {
-      throw new Error(`Skill manifest missing required token: ${token}`);
-    }
+  const schema = JSON.parse(schemaJson);
+  const ajv = new Ajv({ allErrors: true, strict: false });
+  const validate = ajv.compile(schema);
+  if (!validate(data)) {
+    const msg = ajv.errorsText(validate.errors, { separator: "\n" });
+    throw new Error(`Skill manifest failed JSON Schema validation (${schemaFile}):\n${msg}`);
   }
-  for (const endpoint of requiredEndpoints) {
-    if (!text.includes(endpoint)) {
-      throw new Error(`Skill manifest missing endpoint mapping: ${endpoint}`);
-    }
+
+  const paths = new Set(
+    Array.isArray(data.capabilities) ? data.capabilities.map((c) => c?.path).filter((p) => typeof p === "string") : []
+  );
+  const missing = requiredCapabilityPaths.filter((p) => !paths.has(p));
+  if (missing.length > 0) {
+    throw new Error(`Skill manifest missing capability path(s): ${missing.join(", ")}`);
   }
-  return text;
+
+  return data;
 }
 
 async function request(url) {
@@ -63,7 +80,7 @@ async function request(url) {
   return body;
 }
 
-await assertManifest();
+await loadValidatedManifest();
 
 if (shouldProbeApi) {
   const health = await request(healthUrl);
@@ -77,6 +94,7 @@ if (shouldProbeApi) {
       ok: true,
       mode: "manifest+probe",
       skillFile,
+      schemaFile,
       healthOk: Boolean(health.ok),
       readyOk: Boolean(ready.ok),
       searchResultCount: search.results.length
@@ -87,7 +105,8 @@ if (shouldProbeApi) {
     JSON.stringify({
       ok: true,
       mode: "manifest-only",
-      skillFile
+      skillFile,
+      schemaFile
     })
   );
 }

@@ -38,7 +38,7 @@ This checklist maps directly to `docs/projects.md` sections 14 and 16.
 - [x] SQLite index mirror + parity checks are available (`INDEX_DB_PATH`) and covered by tests.
 - [x] Metrics endpoint (`/metrics`) and scheduled compaction (`COMPACTION_INTERVAL_MS`) are implemented.
 - [x] Environment and compose defaults are reconciled with documented runtime behavior.
-- [x] OpenClaw skill manifest import and local acceptance check pass (`skills/openclaw/session-vault.skill.yaml`, `npm run skill:check`).
+- [x] OpenClaw skill manifest import and local acceptance check pass (`skills/openclaw/session-vault.skill.yaml`, `npm run skill:check`, `SKILL.md` version matches YAML when either changed).
 
 ## Go/No-Go Record
 

@@ -4,13 +4,25 @@ import { z } from "zod";
 const DEFAULT_VAULT_ROOT = path.resolve(process.cwd(), "..", "vault");
 const DEFAULT_NODE_ENV = "development";
 
+/** Parse env booleans; `z.coerce.boolean()` wrongly treats the string "false" as true. */
+function envBooleanSchema(defaultValue: boolean) {
+  return z.preprocess((raw) => {
+    if (raw === undefined || raw === null || raw === "") return defaultValue;
+    if (typeof raw === "boolean") return raw;
+    const s = String(raw).trim().toLowerCase();
+    if (["true", "1", "yes", "on"].includes(s)) return true;
+    if (["false", "0", "no", "off"].includes(s)) return false;
+    return raw;
+  }, z.boolean());
+}
+
 const envSchema = z.object({
   PORT: z.coerce.number().int().min(0).max(65535).default(4000),
   VAULT_ROOT: z.string().min(1).default(DEFAULT_VAULT_ROOT),
   API_BASE: z.string().min(1).default("/api/v1/vault"),
   NODE_ENV: z.enum(["development", "test", "production"]).default(DEFAULT_NODE_ENV),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
-  AUTH_ENABLED: z.coerce.boolean().default(false),
+  AUTH_ENABLED: envBooleanSchema(false),
   VAULT_API_KEY_ADMIN: z.string().optional(),
   VAULT_API_KEY_OPERATOR: z.string().optional(),
   VAULT_API_KEY_READER: z.string().optional(),

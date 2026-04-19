@@ -8,6 +8,10 @@
     "frontend",
     "packages/*"
   ],
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "yaml": "^2.7.0"
+  },
   "scripts": {
     "build": "npm run -ws build",
     "dev": "npm run -ws dev",
